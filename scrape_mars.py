@@ -2,7 +2,7 @@
 from splinter import Browser
 from bs4 import BeautifulSoup as bs
 import pandas as pd
-import time
+import requests
 
 
 def init_browser():
@@ -17,15 +17,15 @@ def scrape():
     
     #----------------------------------------------------------------------------------------------------------------------------
     
-    # Scrape Nasa News for latest News
+    # Scrape Nasa News for latest News  
     url = 'https://mars.nasa.gov/news'
     response = requests.get(url)
     soup = bs(response.text, 'lxml')
-
     results = soup.find('div', class_='features')
-    news_title = results.find('div', class_='content_title').text
-    newsp = results.find('div', class_='rollover_description').text
-    
+
+    title = results.find('div', class_='content_title').text
+    text = results.find('div', class_='rollover_description').text
+   
     # Store scraped data in dictionary
     mars_dictionary['title'] = title
     mars_dictionary['text'] = text
@@ -64,7 +64,7 @@ def scrape():
     facts_url = 'https://space-facts.com/mars/'
     tables = pd.read_html(facts_url)
     df = tables[0]
-    df.columns = ['Description', 'Value']
+    df.columns = ['Description', 'Mars', 'Earth']
     df.set_index('Description', inplace=True)
 
     # Export scraped data table to html    
@@ -73,8 +73,7 @@ def scrape():
     df.to_html('facts.html')
 
     # Store scraped data in dictionary
-    mars_dictionary['facts'] = facts
-    
+    mars_dictionary['facts'] = facts 
     
     #----------------------------------------------------------------------------------------------------------------------------
 
@@ -83,7 +82,7 @@ def scrape():
     browser.visit(h_url)
 
     h_html = browser.html
-    he_soup = bs(h_html, 'lxml')
+    h_soup = bs(h_html, 'lxml')
     base_url ="https://astrogeology.usgs.gov"
 
     h_list = h_soup.find_all('div', class_='item')
